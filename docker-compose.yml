@@ -1,0 +1,7 @@
+version: "3.3"
+services:
+  f1when:
+    container_name: "f1when"
+    build: .
+    ports:
+      - "8080:8080"

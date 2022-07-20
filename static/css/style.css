@@ -1,7 +1,6 @@
 html {
     color: white;
     background-color: #181A1B;
-    /* font-family: "Comic Sans MS", "Comic Sans", cursive; */
     font-family: arial, sans-serif;
 }
 
@@ -25,6 +24,10 @@ table {
 
 table, th, td {
   border: 1px solid;
+}
+
+a {
+    color: #3391ff;
 }
 
 .center-container {
@@ -54,7 +57,7 @@ table, th, td {
 
 @media only screen and (max-width: 1000px) {
     td {
-        padding: 0px;
+        padding: 2px;
     }
 
     .center-container {

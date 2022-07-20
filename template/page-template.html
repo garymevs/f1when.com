@@ -1,7 +1,13 @@
+<!DOCTYPE html>
 <html>
     <head>
         <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=yes"/>
-        <title>Next Race: {{.Race.Name}}</title>
+        <title>Next F1 Race: {{.Race.Name}}</title>
+        <meta property="og:title" content="Next F1 Race: {{.Race.Name}}"/>
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://f1when.com">
+        <meta name="description" content="See the start times for each session at the next F1 event."/>
+        <meta property="og:description" content="See the start times for each session at the next F1 event."/>
         <link rel="stylesheet" href="/static/css/style.css">
         <link rel="icon" href="data:;base64,iVBORw0KGgo=">
         <script>
@@ -16,7 +22,7 @@
     </head>
     <body>
         <div class="center-container">
-            <h1><a href="{{.Race.URL}}">{{.Race.Name}}</a> @ <a href="{{.Race.Circuit.URL}}">{{.Race.Circuit.Name}}</a></h1>
+            <h1><a href="{{.Race.URL}}">F1 {{.Race.Name}}</a> @ <a href="{{.Race.Circuit.URL}}">{{.Race.Circuit.Name}}</a></h1>
             <div class="info-container">
                 <table class="info-table">
                     <tr>

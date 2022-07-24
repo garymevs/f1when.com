@@ -111,19 +111,15 @@ func loadSeasonData() {
 // Iterate over the Races in the RaceTable and find the first race with a date after today
 func getNextRace(raceTable *RaceTable) (*Race, error) {
     for _, race := range raceTable.Races {
-        parsedDate, err := time.Parse("2006-01-02", race.Date)
+        parsedDate, err := time.Parse("2006-01-02 15:04:05Z", race.Date + " " + race.Time)
         if err != nil {
             fmt.Println(err.Error())
             break
         }
 
-        if time.Now().Before(parsedDate.Add(time.Hour * 24)) {
+        if time.Now().Before(parsedDate.Add(time.Hour * 2)) {
             return &race, nil
         }
-
-        /* if parsedDate.After(time.Now()) {
-            return &race, nil
-        } */
     }
     return nil, errors.New("Couldn't find next race")
 }

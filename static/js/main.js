@@ -81,11 +81,31 @@ function renderTimeUntil(elId, countDownDate) {
     // Find the distance between now and the count down date
     var distance = countDownDate - now;
 
+    // Set to "Started" and return
+    if (distance < 0) {
+        element.innerHTML = "Started";
+        return;
+    }
+
     // Time calculations for days, hours, minutes and seconds
     var days = Math.floor(distance / (1000 * 60 * 60 * 24));
     var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    // Workaround for minus numbers being off by 1
+    if (days < 0) {
+        days = days + 1;
+    }
+    if (hours < 0) {
+        hours = hours + 1;
+    }
+    if (minutes < 0) {
+        minutes = minutes + 1;
+    }
+    if (seconds < 0) {
+        seconds = seconds + 1;
+    }
 
     // Add a plus to the start if days > 99
     if (days > 99) {

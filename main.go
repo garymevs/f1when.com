@@ -117,9 +117,13 @@ func getNextRace(raceTable *RaceTable) (*Race, error) {
             break
         }
 
-        if parsedDate.After(time.Now()) {
+        if time.Now().Before(parsedDate.Add(time.Hour * 24)) {
             return &race, nil
         }
+
+        /* if parsedDate.After(time.Now()) {
+            return &race, nil
+        } */
     }
     return nil, errors.New("Couldn't find next race")
 }

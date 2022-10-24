@@ -1,0 +1,10 @@
+version: "3.3"
+services:
+  f1whendev:
+    container_name: "f1whendev"
+    build: .
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    environment:
+      - DEV=true

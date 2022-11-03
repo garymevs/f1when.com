@@ -6,9 +6,6 @@ var qUserTime = new Date(q);
 var sUserTime = new Date(s);
 var rUserTime = new Date(r);
 
-// Check for sprint weekend
-var sprintWeekend = isValidDate(sUserTime);
-
 // Formats
 var weekdayFormat = new Intl.DateTimeFormat(undefined, {weekday: "long"});
 var localFormat = new Intl.DateTimeFormat(undefined, {dateStyle: "short", timeStyle: "short"});
@@ -17,35 +14,13 @@ var timeZoneNameFormat = new Intl.DateTimeFormat(undefined, {timeZoneName:"long"
 
 // Wait for the DOM to load
 document.addEventListener("DOMContentLoaded", function() {
-    // Add users local time to the table cells
-    addUserLocalTime("fp-user-time", fpUserTime);
-    addUserLocalTime("sp-user-time", spUserTime);
-    addUserLocalTime("tp-user-time", tpUserTime);
-    addUserLocalTime("q-user-time", qUserTime);
-    if (sprintWeekend) {
-        addUserLocalTime("s-user-time", sUserTime);
-    }
-    addUserLocalTime("r-user-time", rUserTime);
-
-    // Reformat the UTC time to match the users time
-    addUtcTime("fp-utc-time", fpUserTime);
-    addUtcTime("sp-utc-time", spUserTime);
-    addUtcTime("tp-utc-time", tpUserTime);
-    addUtcTime("q-utc-time", qUserTime);
-    if (sprintWeekend) {
-        addUtcTime("s-utc-time", sUserTime);
-    }
-    addUtcTime("r-utc-time", rUserTime);
-
-    // Register time until updates 
-    registerTimeUntil("fp-starts-in", fpUserTime);
-    registerTimeUntil("sp-starts-in", spUserTime);
-    registerTimeUntil("tp-starts-in", tpUserTime);
-    registerTimeUntil("q-starts-in", qUserTime);
-    if (sprintWeekend) {
-        registerTimeUntil("s-starts-in", sUserTime);
-    }
-    registerTimeUntil("r-starts-in", rUserTime);
+    // Validate and setup user times for each sessions
+    setupTime("fp", fpUserTime);
+    setupTime("sp", spUserTime);
+    setupTime("tp", tpUserTime);
+    setupTime("q", qUserTime);
+    setupTime("s", sUserTime);
+    setupTime("r", rUserTime);
 
     // Dump the detected timezone on screen so people can self-verify
     document.getElementById("detected-timezone").innerHTML = "Detected timezone: " + timeZoneNameFormat.format(fpUserTime).split(", ")[1];
@@ -56,6 +31,16 @@ document.addEventListener("DOMContentLoaded", function() {
         jsReqEls[0].classList.remove("js-req");
     }
 });
+
+// Do all the user time setup if it's valid 
+function setupTime(elId, userTime) {
+    if (isValidDate(userTime)) {
+        console.log(elId);
+        addUserLocalTime(elId + "-user-time", userTime);
+        addUtcTime(elId + "-utc-time", userTime);
+        registerTimeUntil(elId + "-starts-in", userTime);
+    }
+}
 
 function addUserLocalTime(elId, userTime) {
     document.getElementById(elId).innerHTML = weekdayFormat.format(userTime) + " " + localFormat.format(userTime);
@@ -93,20 +78,6 @@ function renderTimeUntil(elId, countDownDate) {
     var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-    // Workaround for minus numbers being off by 1
-    if (days < 0) {
-        days = days + 1;
-    }
-    if (hours < 0) {
-        hours = hours + 1;
-    }
-    if (minutes < 0) {
-        minutes = minutes + 1;
-    }
-    if (seconds < 0) {
-        seconds = seconds + 1;
-    }
-
     // Add a plus to the start if days > 99
     if (days > 99) {
         days = "+99";
@@ -123,6 +94,7 @@ function renderTimeUntil(elId, countDownDate) {
     element.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
 }
 
+// Date validation
 function isValidDate(d) {
   return d instanceof Date && !isNaN(d);
 }

@@ -31,30 +31,38 @@
                         <th>UTC</th>
                         <th class="js-req">Starts In</th>
                     </tr>
+                    {{if .Race.FirstPractice.Date}}
                     <tr>
                         <td>First Practice</td>
                         <td id="fp-user-time" class="js-req"></td>
                         <td id="fp-utc-time">{{.Race.FirstPractice.Date}} {{.Race.FirstPractice.Time}}</td>
                         <td id="fp-starts-in" class="js-req"></td>
                     </tr>
+                    {{end}}
+                    {{if .Race.SecondPractice.Date}}
                     <tr>
                         <td>Second Practice</td>
                         <td id="sp-user-time" class="js-req"></td>
                         <td id="sp-utc-time">{{.Race.SecondPractice.Date}} {{.Race.SecondPractice.Time}}</td>
                         <td id="sp-starts-in" class="js-req"></td>
                     </tr>
+                    {{end}}
+                    {{if .Race.ThirdPractice.Date}}
                     <tr>
                         <td>Third Practice</td>
                         <td id="tp-user-time" class="js-req"></td>
                         <td id="tp-utc-time">{{.Race.ThirdPractice.Date}} {{.Race.ThirdPractice.Time}}</td>
                         <td id="tp-starts-in" class="js-req"></td>
                     </tr>
+                    {{end}}
+                    {{if .Race.Qualifying.Date}}
                     <tr>
                         <td>Qualifying</td>
                         <td id="q-user-time" class="js-req"></td>
                         <td id="q-utc-time">{{.Race.Qualifying.Date}} {{.Race.Qualifying.Time}}</td>
                         <td id="q-starts-in" class="js-req"></td>
                     </tr>
+                    {{end}}
                     {{if .Race.Sprint.Date}}
                     <tr>
                         <td>Sprint</td>

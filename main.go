@@ -15,6 +15,7 @@ import (
 
 // Main HTML page template
 var pageTemplate *template.Template
+var endOfSeasonTemplate *template.Template
 
 // F1 season data
 var raceTable RaceTable
@@ -29,11 +30,8 @@ func main() {
 		devMode = false
 	}
 
-	// Load the page template
-	pageTemplate, err = loadPageTemplate("template/page-template.html")
-	if err != nil {
-		log.Fatalf("error loading page template: %s", err)
-	}
+	// Load page templates
+	loadPageTemplates()
 
 	// Download the json data from ergast.com
 	refreshRaceTable()
@@ -98,6 +96,19 @@ func loadSeasonData() (BaseData, error) {
 	return baseData, nil
 }
 
+func loadPageTemplates() {
+	var err error
+	// Load the page templates
+	pageTemplate, err = loadPageTemplate("template/page-template.html")
+	if err != nil {
+		log.Fatalf("error loading root page template: %s", err)
+	}
+	endOfSeasonTemplate, err = loadPageTemplate("template/season-end.html")
+	if err != nil {
+		log.Fatalf("error loading end of season page template: %s", err)
+	}
+}
+
 func loadPageTemplate(pageFilePath string) (*template.Template, error) {
 	log.Println("Loading page template...")
 	template, err := template.ParseFiles(pageFilePath)
@@ -109,8 +120,8 @@ func loadPageTemplate(pageFilePath string) (*template.Template, error) {
 }
 
 // Iterate over the Races in the RaceTable and find the first race with a date after today
-func getNextRace(raceTable *RaceTable) (*Race, error) {
-	for _, race := range raceTable.Races {
+func getNextRace(raceTable *RaceTable) (*Race, bool, error) {
+	for raceIdx, race := range raceTable.Races {
 		parsedDate, err := time.Parse("2006-01-02 15:04:05Z", race.Date+" "+race.Time)
 		if err != nil {
 			log.Println(err.Error())
@@ -120,10 +131,15 @@ func getNextRace(raceTable *RaceTable) (*Race, error) {
 		// Return the race if the time now is before the race + 2 hours
 		// Example: If the race starts at 3PM it will still be returned until 5PM
 		if time.Now().Before(parsedDate.Add(time.Hour * 2)) {
-			return &race, nil
+			return &race, false, nil
+		}
+
+		// If we reach the last element and the previous block isn't matched then we have probably finished the season
+		if raceIdx >= len(raceTable.Races)-1 {
+			return &Race{}, true, nil
 		}
 	}
-	return nil, errors.New("couldn't find next race")
+	return nil, false, errors.New("couldn't find next race")
 }
 
 // Function for handling requests to /
@@ -134,13 +150,22 @@ func webRoot(w http.ResponseWriter, req *http.Request) {
 		log.Println(time.Now(), "is more than 24 hours after", dataPullTime, "reloading data")
 		refreshRaceTable()
 	}
-	race, err := getNextRace(&raceTable)
+	race, seasonEnded, err := getNextRace(&raceTable)
 	if err != nil {
 		fmt.Fprintf(w, "error loading next race: %s", err.Error())
+		return
+	}
+	if seasonEnded {
+		endOfSeasonRoot(w, req)
+		return
 	}
 
 	// Render the page template using the race retrieved in the previous function
 	pageTemplate.Execute(w, &Page{race})
+}
+
+func endOfSeasonRoot(w http.ResponseWriter, req *http.Request) {
+	endOfSeasonTemplate.Execute(w, nil)
 }
 
 func jsonRoot(w http.ResponseWriter, req *http.Request) {
@@ -148,16 +173,22 @@ func jsonRoot(w http.ResponseWriter, req *http.Request) {
 		log.Println(time.Now(), "is more than 24 hours after", dataPullTime, "reloading data")
 		refreshRaceTable()
 	}
-	race, err := getNextRace(&raceTable)
+	race, seasonEnded, err := getNextRace(&raceTable)
 	if err != nil {
 		fmt.Fprintf(w, "error loading next race: %s", err.Error())
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(race)
+	// If season is over just dump all the json otherwise we'll return the json for the current race
+	if seasonEnded {
+		json.NewEncoder(w).Encode(raceTable)
+	} else {
+		json.NewEncoder(w).Encode(race)
+	}
 }
 
 // Reload the page template then return the main page
 func templateReload(w http.ResponseWriter, req *http.Request) {
 	refreshRaceTable()
+	loadPageTemplates()
 	webRoot(w, req)
 }

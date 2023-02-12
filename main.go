@@ -69,12 +69,32 @@ func refreshRaceTable() {
 
 // Download the JSON from ergast.com
 func loadSeasonData() (BaseData, error) {
+	baseData, err := loadSpecificSeasonData("current")
+	if err != nil {
+		return baseData, err
+	}
+	_, seasonEnded, _ := getNextRace(&baseData.MRData.RaceTable)
+	if seasonEnded {
+		log.Println("Current season is marked as ended. Pulling season for this year...")
+		currentSeason, err := strconv.Atoi(baseData.MRData.RaceTable.Season)
+		if err != nil {
+			return baseData, err
+		}
+		if time.Now().Year() > currentSeason {
+			return loadSpecificSeasonData(strconv.Itoa(time.Now().Year()))
+		}
+	}
+	return baseData, err
+}
+
+// Load season using the provided string
+func loadSpecificSeasonData(season string) (BaseData, error) {
 	log.Println("Requesting data from ergast...")
 	baseData := BaseData{}
 	// Data from here: https://ergast.com/api/f1/current.json
 	// Create http client and make GET request
-	httpClient := &http.Client{}
-	res, err := httpClient.Get("https://ergast.com/api/f1/current.json")
+	httpClient := &http.Client{Timeout: time.Second * 30}
+	res, err := httpClient.Get("https://ergast.com/api/f1/" + season + ".json")
 	if err != nil {
 		return baseData, err
 	}
@@ -120,6 +140,7 @@ func loadPageTemplate(pageFilePath string) (*template.Template, error) {
 }
 
 // Iterate over the Races in the RaceTable and find the first race with a date after today
+// Returns Race, seasonEnded, err
 func getNextRace(raceTable *RaceTable) (*Race, bool, error) {
 	for raceIdx, race := range raceTable.Races {
 		parsedDate, err := time.Parse("2006-01-02 15:04:05Z", race.Date+" "+race.Time)

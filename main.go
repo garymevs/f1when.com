@@ -4,18 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
-)
 
-// Main HTML page template
-var pageTemplate *template.Template
-var endOfSeasonTemplate *template.Template
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html"
+)
 
 // F1 season data
 var raceTable RaceTable
@@ -24,34 +22,36 @@ var dataPullTime time.Time
 const dataRefreshPeriod time.Duration = time.Hour * 24
 
 func main() {
+	engine := html.New("./templates", ".html")
+	app := fiber.New(fiber.Config{
+		Immutable: true,
+		Views:     engine,
+	})
+
 	// check for DEV env variable
 	devMode, err := strconv.ParseBool(os.Getenv("DEV"))
 	if err != nil {
 		devMode = false
 	}
 
-	// Load page templates
-	loadPageTemplates()
-
 	// Download the json data from ergast.com
 	refreshRaceTable()
 
 	// Serve static resources
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	app.Static("/static", "./static")
+
 	// Serve the main page
-	http.HandleFunc("/json", jsonRoot)
-	http.HandleFunc("/", webRoot)
-	// Dev mode pages
-	if devMode {
-		http.HandleFunc("/reload-template", templateReload)
-	}
+	app.Get("/", webRoot)
+
 	// Start the web server
 	if devMode {
 		fmt.Println("Starting dev server on :8081")
-		http.ListenAndServe(":8081", nil)
+		//http.ListenAndServe(":8081", nil)
+		log.Fatal(app.Listen(":8081"))
 	} else {
 		fmt.Println("Starting server on :8080")
-		http.ListenAndServe(":8080", nil)
+		//http.ListenAndServe(":8080", nil)
+		log.Fatal(app.Listen(":8080"))
 	}
 }
 
@@ -116,29 +116,6 @@ func loadSpecificSeasonData(season string) (BaseData, error) {
 	return baseData, nil
 }
 
-func loadPageTemplates() {
-	var err error
-	// Load the page templates
-	pageTemplate, err = loadPageTemplate("template/page-template.html")
-	if err != nil {
-		log.Fatalf("error loading root page template: %s", err)
-	}
-	endOfSeasonTemplate, err = loadPageTemplate("template/season-end.html")
-	if err != nil {
-		log.Fatalf("error loading end of season page template: %s", err)
-	}
-}
-
-func loadPageTemplate(pageFilePath string) (*template.Template, error) {
-	log.Println("Loading page template...")
-	template, err := template.ParseFiles(pageFilePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load template file: %s", pageFilePath)
-	}
-	log.Println("Page template load complete")
-	return template, nil
-}
-
 // Iterate over the Races in the RaceTable and find the first race with a date after today
 // Returns Race, seasonEnded, err
 func getNextRace(raceTable *RaceTable) (*Race, bool, error) {
@@ -164,52 +141,19 @@ func getNextRace(raceTable *RaceTable) (*Race, bool, error) {
 }
 
 // Function for handling requests to /
-func webRoot(w http.ResponseWriter, req *http.Request) {
-	log.Printf("Request from: %s", req.RemoteAddr)
+func webRoot(c *fiber.Ctx) error {
+	log.Printf("Request from: %s", c.IP())
 	// If we haven't pulled the data from ergast in 24 hours then pull it again (Might increse this in the future)
 	if time.Now().After(dataPullTime.Add(dataRefreshPeriod)) {
 		log.Println(time.Now(), "is more than 24 hours after", dataPullTime, "reloading data")
 		refreshRaceTable()
 	}
-	race, seasonEnded, err := getNextRace(&raceTable)
+	race, _, err := getNextRace(&raceTable)
 	if err != nil {
-		fmt.Fprintf(w, "error loading next race: %s", err.Error())
-		return
-	}
-	if seasonEnded {
-		endOfSeasonRoot(w, req)
-		return
+		c.SendString("error loading next race: " + err.Error())
+		return errors.New("error loading next race: " + err.Error())
 	}
 
 	// Render the page template using the race retrieved in the previous function
-	pageTemplate.Execute(w, &Page{race})
-}
-
-func endOfSeasonRoot(w http.ResponseWriter, req *http.Request) {
-	endOfSeasonTemplate.Execute(w, nil)
-}
-
-func jsonRoot(w http.ResponseWriter, req *http.Request) {
-	if time.Now().After(dataPullTime.Add(dataRefreshPeriod)) {
-		log.Println(time.Now(), "is more than 24 hours after", dataPullTime, "reloading data")
-		refreshRaceTable()
-	}
-	race, seasonEnded, err := getNextRace(&raceTable)
-	if err != nil {
-		fmt.Fprintf(w, "error loading next race: %s", err.Error())
-	}
-	w.Header().Set("Content-Type", "application/json")
-	// If season is over just dump all the json otherwise we'll return the json for the current race
-	if seasonEnded {
-		json.NewEncoder(w).Encode(raceTable)
-	} else {
-		json.NewEncoder(w).Encode(race)
-	}
-}
-
-// Reload the page template then return the main page
-func templateReload(w http.ResponseWriter, req *http.Request) {
-	refreshRaceTable()
-	loadPageTemplates()
-	webRoot(w, req)
+	return c.Render("page-template", &Page{race})
 }

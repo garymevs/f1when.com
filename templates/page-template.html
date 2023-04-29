@@ -19,9 +19,20 @@
             var r = "{{.Race.Date}} {{.Race.Time}}"
         </script>
         <script src="/static/js/main.js"></script>
+        <script src="/static/js/raceselect.js"></script>
     </head>
     <body>
-        <div class="center-container">
+        <div id="race-selector" class="js-req">
+            <button onclick="closeRaceSelector()">☰</button>
+            {{range .Races}}
+            <a href="/round/{{.Round}}">{{.Name}} {{.Date}}</a>
+            {{end}}
+        </div>
+        <div id="navbar">
+            <button onclick="openRaceSelector()">☰</button>
+            <a href="/">☖</a>
+        </div>
+        <div id="center-container">
             <h1><a href="{{.Race.URL}}">F1 {{.Race.Name}}</a> @ <a href="{{.Race.Circuit.URL}}">{{.Race.Circuit.Name}}</a></h1>
             <div class="info-container">
                 <table class="info-table">

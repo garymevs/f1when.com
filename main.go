@@ -40,8 +40,9 @@ func main() {
 	// Serve static resources
 	app.Static("/static", "./static")
 
-	// Serve the main page
+	// Serve pages
 	app.Get("/", webRoot)
+	app.Get("/round/:round", webRound)
 
 	// Start the web server
 	if devMode {
@@ -142,7 +143,7 @@ func getNextRace(raceTable *RaceTable) (*Race, bool, error) {
 
 // Function for handling requests to /
 func webRoot(c *fiber.Ctx) error {
-	log.Printf("Request from: %s", c.IP())
+	log.Printf("%s requested from %s", c.BaseURL(), c.IP())
 	// If we haven't pulled the data from ergast in 24 hours then pull it again (Might increse this in the future)
 	if time.Now().After(dataPullTime.Add(dataRefreshPeriod)) {
 		log.Println(time.Now(), "is more than 24 hours after", dataPullTime, "reloading data")
@@ -155,5 +156,24 @@ func webRoot(c *fiber.Ctx) error {
 	}
 
 	// Render the page template using the race retrieved in the previous function
-	return c.Render("page-template", &Page{race})
+	return c.Render("page-template", &Page{&raceTable.Races, race})
+}
+
+func webRound(c *fiber.Ctx) error {
+	log.Printf("%s requested from %s", c.BaseURL(), c.IP())
+	// If we haven't pulled the data from ergast in 24 hours then pull it again (Might increse this in the future)
+	if time.Now().After(dataPullTime.Add(dataRefreshPeriod)) {
+		log.Println(time.Now(), "is more than 24 hours after", dataPullTime, "reloading data")
+		refreshRaceTable()
+	}
+	//race, _, err := getNextRace(&raceTable)
+	round, err := strconv.Atoi(c.Params("round"))
+	race := &raceTable.Races[round-1]
+	if err != nil {
+		c.SendString("error loading round: " + err.Error())
+		return errors.New("error loading round: " + err.Error())
+	}
+
+	// Render the page template using the race retrieved in the previous function
+	return c.Render("page-template", &Page{&raceTable.Races, race})
 }

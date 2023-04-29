@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", function() {
 // Do all the user time setup if it's valid 
 function setupTime(elId, userTime) {
     if (isValidDate(userTime)) {
-        console.log(elId);
         addUserLocalTime(elId + "-user-time", userTime);
         addUtcTime(elId + "-utc-time", userTime);
         registerTimeUntil(elId + "-starts-in", userTime);

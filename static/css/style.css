@@ -34,12 +34,43 @@ a {
     color: #3391ff;
 }
 
-.center-container {
+button {
+    color: white;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    outline: none;
+    font-size: 2em;
+    padding: 0.2em;
+    border: 0;
+}
+
+#race-selector {
+    text-align: center;
+    background-color: #181A1B;
+    display: none;
+    position: absolute;
+}
+
+#race-selector a {
+    padding: 1em;
+}
+
+#navbar a {
+    color: white;
+    font-size: 2em;
+    text-decoration-line: none;
+}
+
+#center-container {
     padding-top: 10%;
     margin-right: auto;
     margin-left: auto;
     width: 75%;
     text-align: center;
+}
+
+#center-container h1 {
+    margin-top: 0;
 }
 
 .info-container {

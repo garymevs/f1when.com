@@ -9,4 +9,4 @@ COPY . ./
 
 RUN go build -v -o main
 
-CMD [ "main" ]
+CMD [ "./main" ]

@@ -51,8 +51,8 @@ button {
     position: absolute;
 }
 
-#race-selector a {
-    padding: 1em;
+.race-selector-item {
+    padding-top: 1em;
 }
 
 #navbar a {
@@ -62,7 +62,7 @@ button {
 }
 
 #center-container {
-    padding-top: 10%;
+    padding-top: 0;
     margin-right: auto;
     margin-left: auto;
     width: 75%;
@@ -95,7 +95,7 @@ button {
         padding: 2px;
     }
 
-    .center-container {
+    #center-container {
         padding-top: 0;
         width: 100%;
     }

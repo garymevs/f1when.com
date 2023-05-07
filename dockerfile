@@ -2,7 +2,11 @@ FROM golang
 
 WORKDIR /app
 
-COPY . .
-RUN go mod tidy
+COPY go.* ./
+RUN go mod download
 
-CMD [ "go", "run", "." ]
+COPY . ./
+
+RUN go build -v -o main
+
+CMD [ "main" ]

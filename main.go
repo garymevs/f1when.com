@@ -21,6 +21,8 @@ var dataPullTime time.Time
 
 const dataRefreshPeriod time.Duration = time.Hour * 24
 
+var devMode = false
+
 func main() {
 	engine := html.New("./templates", ".html")
 	app := fiber.New(fiber.Config{
@@ -29,10 +31,7 @@ func main() {
 	})
 
 	// check for DEV env variable
-	devMode, err := strconv.ParseBool(os.Getenv("DEV"))
-	if err != nil {
-		devMode = false
-	}
+	devMode, _ = strconv.ParseBool(os.Getenv("DEV"))
 
 	// Download the json data from ergast.com
 	refreshRaceTable()
@@ -90,6 +89,21 @@ func loadSeasonData() (BaseData, error) {
 
 // Load season using the provided string
 func loadSpecificSeasonData(season string) (BaseData, error) {
+	if devMode {
+		log.Println("Running as dev, loading data.json")
+		jsonFile, err := os.Open("data.json")
+		if err != nil {
+			return BaseData{}, errors.New("running as dev mode but unable to load data.json")
+		}
+		defer jsonFile.Close()
+		byteValue, err := ioutil.ReadAll(jsonFile)
+		if err != nil {
+			return BaseData{}, errors.New("error reading dev mode data.json")
+		}
+		baseData := BaseData{}
+		json.Unmarshal(byteValue, &baseData)
+		return baseData, nil
+	}
 	log.Println("Requesting data from ergast...")
 	baseData := BaseData{}
 	// Data from here: https://ergast.com/api/f1/current.json

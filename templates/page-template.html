@@ -23,9 +23,12 @@
     </head>
     <body>
         <div id="race-selector" class="js-req">
-            <button onclick="closeRaceSelector()">☰</button>
+            <div id="navbar">
+                <button onclick="closeRaceSelector()">☰</button>
+                <a href="/">☖</a>
+            </div>
             {{range .Races}}
-            <a href="/round/{{.Round}}">{{.Name}} {{.Date}}</a>
+            <a class="race-selector-item" href="/round/{{.Round}}"><h2>{{.Name}} {{.Date}}</h2></a>
             {{end}}
         </div>
         <div id="navbar">

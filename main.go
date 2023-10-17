@@ -109,7 +109,7 @@ func loadSpecificSeasonData(season string) (BaseData, error) {
 	// Data from here: https://ergast.com/api/f1/current.json
 	// Create http client and make GET request
 	httpClient := &http.Client{Timeout: time.Second * 30}
-	res, err := httpClient.Get("https://ergast.com/api/f1/" + season + ".json")
+	res, err := httpClient.Get("http://ergast.com/api/f1/" + season + ".json")
 	if err != nil {
 		return baseData, err
 	}

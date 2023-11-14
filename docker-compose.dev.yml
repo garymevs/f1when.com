@@ -3,6 +3,7 @@ services:
   f1whendev:
     container_name: "f1whendev"
     image: cosmtrek/air
+    command: --build.cmd="go build -buildvcs=false -o ./tmp/main . "
     working_dir: /app
     volumes:
       - ./:/app/

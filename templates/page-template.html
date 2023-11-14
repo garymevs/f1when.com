@@ -2,8 +2,8 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=yes"/>
-        <title>Next F1 Race: {{.Race.Name}}</title>
-        <meta property="og:title" content="Next F1 Race: {{.Race.Name}}"/>
+        <title>Next F1 Race: {{.F1Data.Race.MeetingOfficialName}}</title>
+        <meta property="og:title" content="Next F1 Race: {{.F1Data.Race.MeetingOfficialName}}"/>
         <meta property="og:type" content="website">
         <meta property="og:url" content="https://f1when.com">
         <meta name="description" content="See the start times for each session at the next F1 event."/>
@@ -11,40 +11,16 @@
         <link rel="stylesheet" href="/static/css/style.css">
         <link rel="icon" href="data:;base64,iVBORw0KGgo=">
         <script>
-            var fp = "{{.Race.FirstPractice.Date}} {{.Race.FirstPractice.Time}}"
-            var sp = "{{.Race.SecondPractice.Date}} {{.Race.SecondPractice.Time}}"
-            var tp = "{{.Race.ThirdPractice.Date}} {{.Race.ThirdPractice.Time}}"
-            var q = "{{.Race.Qualifying.Date}} {{.Race.Qualifying.Time}}"
-            var s = "{{.Race.Sprint.Date}} {{.Race.Sprint.Time}}"
-            var r = "{{.Race.Date}} {{.Race.Time}}"
+            var gmtOffset = "{{(index .F1Data.SeasonContext.Timetables 0).GmtOffset}}"
+            {{/** ignore the below error **/}}
+            var sessions = {{.F1Data.SeasonContext.Timetables}}
         </script>
         <script src="/static/js/main.js"></script>
-        <script src="/static/js/raceselect.js"></script>
+        <!-- <script src="/static/js/raceselect.js"></script> -->
     </head>
     <body>
-        <div id="race-selector" class="js-req">
-            <div id="navbar">
-                <button onclick="closeRaceSelector()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M3 18v-2h18v2H3Zm0-5v-2h18v2H3Zm0-5V6h18v2H3Z"/></svg>
-                </button>
-                <a href="/">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4 21V9l8-6l8 6v12h-6v-7h-4v7H4Z"/></svg>
-                </a>
-            </div>
-            {{range .Races}}
-            <a class="race-selector-item" href="/round/{{.Round}}"><h2>{{.Name}} {{.Date}}</h2></a>
-            {{end}}
-        </div>
-        <div id="navbar" class="js-req">
-            <button onclick="openRaceSelector()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M3 18v-2h18v2H3Zm0-5v-2h18v2H3Zm0-5V6h18v2H3Z"/></svg>
-            </button>
-            <a href="/">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4 21V9l8-6l8 6v12h-6v-7h-4v7H4Z"/></svg>
-            </a>
-        </div>
         <div id="center-container">
-            <h1><a href="{{.Race.URL}}">F1 {{.Race.Name}}</a> @ <a href="{{.Race.Circuit.URL}}">{{.Race.Circuit.Name}}</a></h1>
+            <h1>{{.F1Data.Race.MeetingOfficialName}}</a></h1>
             <div class="info-container">
                 <table class="info-table">
                     <tr>
@@ -53,52 +29,14 @@
                         <th>UTC</th>
                         <th class="js-req">Starts In</th>
                     </tr>
-                    {{if .Race.FirstPractice.Date}}
-                    <tr>
-                        <td>First Practice</td>
-                        <td id="fp-user-time" class="js-req"></td>
-                        <td id="fp-utc-time">{{.Race.FirstPractice.Date}} {{.Race.FirstPractice.Time}}</td>
-                        <td id="fp-starts-in" class="js-req"></td>
-                    </tr>
+                    {{range .F1Data.SeasonContext.Timetables}}
+                        <tr>
+                            <td>{{.Description}}</td>
+                            <td id="{{.Session}}-user-time" class="js-req"></td>
+                            <td id="{{.Session}}-utc-time" class="js-req"></td>
+                            <td id="{{.Session}}-starts-in" class="js-req"></td>
+                        </tr>
                     {{end}}
-                    {{if .Race.SecondPractice.Date}}
-                    <tr>
-                        <td>Second Practice</td>
-                        <td id="sp-user-time" class="js-req"></td>
-                        <td id="sp-utc-time">{{.Race.SecondPractice.Date}} {{.Race.SecondPractice.Time}}</td>
-                        <td id="sp-starts-in" class="js-req"></td>
-                    </tr>
-                    {{end}}
-                    {{if .Race.ThirdPractice.Date}}
-                    <tr>
-                        <td>Third Practice</td>
-                        <td id="tp-user-time" class="js-req"></td>
-                        <td id="tp-utc-time">{{.Race.ThirdPractice.Date}} {{.Race.ThirdPractice.Time}}</td>
-                        <td id="tp-starts-in" class="js-req"></td>
-                    </tr>
-                    {{end}}
-                    {{if .Race.Qualifying.Date}}
-                    <tr>
-                        <td>Qualifying</td>
-                        <td id="q-user-time" class="js-req"></td>
-                        <td id="q-utc-time">{{.Race.Qualifying.Date}} {{.Race.Qualifying.Time}}</td>
-                        <td id="q-starts-in" class="js-req"></td>
-                    </tr>
-                    {{end}}
-                    {{if .Race.Sprint.Date}}
-                    <tr>
-                        <td>Sprint</td>
-                        <td id="s-user-time" class="js-req"></td>
-                        <td id="s-utc-time">{{.Race.Sprint.Date}} {{.Race.Sprint.Time}}</td>
-                        <td id="s-starts-in" class="js-req"></td>
-                    </tr>
-                    {{end}}
-                    <tr>
-                        <td>Race</td>
-                        <td id="r-user-time" class="js-req"></td>
-                        <td id="r-utc-time">{{.Race.Date}} {{.Race.Time}}</td>
-                        <td id="r-starts-in" class="js-req"></td>
-                    </tr>
                 </table>
                 <div class="info-timezone">
                     <p class="js-req">*Your Time depends on your web browser properly presenting your timezone</p>
@@ -108,6 +46,5 @@
         </div>
     </body>
     <footer>
-        <p>Data provided by <a href="http://ergast.com/mrd" target="_blank">Ergast API</a></p>
     </footer>
 </html>

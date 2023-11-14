@@ -1,11 +1,3 @@
-// Set up Date objects using the Z(UTC) time
-var fpUserTime = new Date(fp);
-var spUserTime = new Date(sp);
-var tpUserTime = new Date(tp);
-var qUserTime = new Date(q);
-var sUserTime = new Date(s);
-var rUserTime = new Date(r);
-
 // Formats
 var weekdayFormat = new Intl.DateTimeFormat(undefined, {weekday: "long"});
 var localFormat = new Intl.DateTimeFormat(undefined, {dateStyle: "short", timeStyle: "short"});
@@ -15,15 +7,13 @@ var timeZoneNameFormat = new Intl.DateTimeFormat(undefined, {timeZoneName:"long"
 // Wait for the DOM to load
 document.addEventListener("DOMContentLoaded", function() {
     // Validate and setup user times for each sessions
-    setupTime("fp", fpUserTime);
-    setupTime("sp", spUserTime);
-    setupTime("tp", tpUserTime);
-    setupTime("q", qUserTime);
-    setupTime("s", sUserTime);
-    setupTime("r", rUserTime);
+    sessions.forEach(session => {
+        console.log(session.session);
+        setupTime(session.session, new Date(session.startTime), session.gmtOffset);
+    });
 
     // Dump the detected timezone on screen so people can self-verify
-    document.getElementById("detected-timezone").innerHTML = "Detected timezone: " + timeZoneNameFormat.format(fpUserTime).split(", ")[1];
+    document.getElementById("detected-timezone").innerHTML = "Detected timezone: " + timeZoneNameFormat.format(new Date()).split(", ")[1];
 
     // Show all of the elements we hide if JS isn't available
     var jsReqEls = document.getElementsByClassName("js-req");
@@ -33,11 +23,14 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // Do all the user time setup if it's valid 
-function setupTime(elId, userTime) {
-    if (isValidDate(userTime)) {
-        addUserLocalTime(elId + "-user-time", userTime);
-        addUtcTime(elId + "-utc-time", userTime);
-        registerTimeUntil(elId + "-starts-in", userTime);
+function setupTime(elId, trackTime, gmtOffset) {
+    if (isValidDate(trackTime)) {
+        // Apply GMT offset
+        trackTime = new Date(trackTime + gmtOffset);
+
+        addUserLocalTime(elId + "-user-time", trackTime);
+        addUtcTime(elId + "-utc-time", trackTime);
+        registerTimeUntil(elId + "-starts-in", trackTime);
     }
 }
 

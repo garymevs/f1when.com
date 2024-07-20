@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Validate and setup user times for each sessions
     sessions.forEach(session => {
         console.log(session.session);
-        setupTime(session.session, new Date(session.startTime), session.gmtOffset);
+        setupTime(session.session, session.startTime, session.gmtOffset);
     });
 
     // Dump the detected timezone on screen so people can self-verify
@@ -24,10 +24,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Do all the user time setup if it's valid 
 function setupTime(elId, trackTime, gmtOffset) {
+    // Apply GMT timezone offset of the track before converting to local timezone
+    trackTime = new Date(trackTime + gmtOffset);
     if (isValidDate(trackTime)) {
-        // Apply GMT offset
-        trackTime = new Date(trackTime + gmtOffset);
-
         addUserLocalTime(elId + "-user-time", trackTime);
         addUtcTime(elId + "-utc-time", trackTime);
         registerTimeUntil(elId + "-starts-in", trackTime);

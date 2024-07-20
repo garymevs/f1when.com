@@ -109,12 +109,14 @@ type MeetingContext struct {
 }
 
 type Timetable struct {
-	State       *string `json:"state,omitempty"`
-	Session     *string `json:"session,omitempty"`
-	GmtOffset   *string `json:"gmtOffset,omitempty"`
-	Description *string `json:"description,omitempty"`
-	EndTime     *string `json:"endTime,omitempty"`
-	StartTime   *string `json:"startTime,omitempty"`
+	State        *string `json:"state,omitempty"`
+	Session      *string `json:"session,omitempty"`
+	GmtOffset    *string `json:"gmtOffset,omitempty"`
+	Description  *string `json:"description,omitempty"`
+	EndTime      *string `json:"endTime,omitempty"`
+	EndTimeUTC   string
+	StartTime    *string `json:"startTime,omitempty"`
+	StartTimeUTC string
 }
 
 type Race struct {

@@ -15,7 +15,7 @@
             {{/** ignore the below error **/}}
             var sessions = {{.F1Data.SeasonContext.Timetables}}
         </script>
-        <script src="/static/js/mainv2.js"></script>
+        <script src="/static/js/mainv2.js?2"></script>
         <!-- <script src="/static/js/raceselect.js"></script> -->
     </head>
     <body>
@@ -33,7 +33,7 @@
                         <tr>
                             <td>{{.Description}}</td>
                             <td id="{{.Session}}-user-time" class="js-req"></td>
-                            <td id="{{.Session}}-utc-time" class="js-req"></td>
+                            <td id="{{.Session}}-utc-time">{{.StartTimeUTC}}</td>
                             <td id="{{.Session}}-starts-in" class="js-req"></td>
                         </tr>
                     {{end}}

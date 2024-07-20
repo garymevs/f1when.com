@@ -98,7 +98,8 @@ func refreshRaceData() error {
 		return err
 	}
 
-	//2023-11-16T20:30:00
+	// Sort sessions into date time order
+	// 2023-11-16T20:30:00
 	sort.Slice(raceData.SeasonContext.Timetables, func(i, j int) bool {
 		iDate, _ := time.Parse(time.RFC3339, *raceData.SeasonContext.Timetables[i].StartTime+"Z")
 		log.Println(iDate)
@@ -106,6 +107,14 @@ func refreshRaceData() error {
 		log.Println(jDate)
 		return iDate.Before(jDate)
 	})
+
+	// Add UTC time to the sessions
+	for index, timetable := range raceData.SeasonContext.Timetables {
+		startTimeWithGMTOffset, _ := time.Parse(time.RFC3339, *timetable.StartTime+*timetable.GmtOffset)
+		raceData.SeasonContext.Timetables[index].StartTimeUTC = startTimeWithGMTOffset.UTC().String()
+		endTimeWithGMTOffset, _ := time.Parse(time.RFC3339, *timetable.EndTime+*timetable.GmtOffset)
+		raceData.SeasonContext.Timetables[index].EndTimeUTC = endTimeWithGMTOffset.UTC().String()
+	}
 
 	log.Println("Data pull complete")
 	dataPullTime = time.Now()

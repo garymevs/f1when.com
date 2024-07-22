@@ -20,7 +20,7 @@ import (
 var raceData F1Data
 var dataPullTime time.Time
 
-const dataRefreshPeriod time.Duration = time.Hour * 24
+const dataRefreshPeriod time.Duration = time.Hour * 2
 
 var devMode = false
 var apiKey = ""

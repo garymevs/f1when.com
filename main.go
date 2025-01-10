@@ -89,7 +89,6 @@ func refreshRaceData() error {
 		return err
 	}
 
-	// TODO: add some actual error handling
 	// At the moment because the F1Data struct has everything as optional we will never get an error here
 
 	// Unmarshal read bytes into JSON object
@@ -100,6 +99,9 @@ func refreshRaceData() error {
 
 	// Sort sessions into date time order
 	// 2023-11-16T20:30:00
+	if raceData.SeasonContext.Timetables == nil {
+		return errors.New("no timetables found")
+	}
 	sort.Slice(raceData.SeasonContext.Timetables, func(i, j int) bool {
 		iDate, _ := time.Parse(time.RFC3339, *raceData.SeasonContext.Timetables[i].StartTime+"Z")
 		log.Println(iDate)

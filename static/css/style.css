@@ -86,6 +86,13 @@ button {
     text-align: center;
 }
 
+.track-image {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    height: 300px;
+}
+
 .js-req {
     display: none;
 }
@@ -99,4 +106,10 @@ button {
         padding-top: 0;
         width: 100%;
     }
+}
+
+@media screen and (max-height: 740px), (max-width: 400px) {
+   .info-track {
+       display: none;
+   } 
 }

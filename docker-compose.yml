@@ -3,6 +3,16 @@ services:
   f1when:
     container_name: "f1when"
     build: .
-    ports:
-      - "8080:8080"
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.f1when.rule=Host(`f1when.com`)"
+      - "traefik.http.routers.f1when.entrypoints=web,websecure"
+      - "traefik.http.services.f1when.loadbalancer.server.port=8080"
+      - "traefik.http.routers.f1when.tls.certresolver=mycertresolver"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true

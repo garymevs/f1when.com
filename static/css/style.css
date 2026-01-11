@@ -113,3 +113,57 @@ button {
        display: none;
    } 
 }
+
+/* No Data Page Styles */
+.no-data-container {
+    text-align: center;
+    padding: 2em;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.sad-smiley {
+    font-size: 8em;
+    margin-bottom: 0.5em;
+    animation: bounce 2s infinite;
+}
+
+.no-data-container h1 {
+    color: #ff6b6b;
+    margin-bottom: 1em;
+    font-size: 2.5em;
+}
+
+.no-data-container p {
+    font-size: 1.2em;
+    margin-bottom: 1em;
+    color: #cccccc;
+}
+
+.retry-button {
+    background-color: #3391ff;
+    color: white;
+    border: none;
+    padding: 0.8em 2em;
+    font-size: 1.2em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 1em;
+}
+
+.retry-button:hover {
+    background-color: #1a7ae6;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}

@@ -51,6 +51,7 @@ func main() {
 	app.Static("/static", "./static")
 
 	// Serve pages
+	//app.Static("/", "./static/nodata.html")
 	app.Get("/", webRoot)
 	// app.Get("/round/:round", webRound) !Removed in favour of new API (might be readded)
 
@@ -178,6 +179,9 @@ func refreshMeetingData(meetingKey string) error {
 
 	// Sort sessions into date time order
 	// 2023-11-16T20:30:00
+	if raceData.MeetingContext == nil {
+		return errors.New("no meeting context found")
+	}
 	if raceData.MeetingContext.Timetables == nil {
 		return errors.New("no timetables found")
 	}

@@ -12,6 +12,8 @@ services:
       - "traefik.http.routers.f1when.tls.certresolver=mycertresolver"
     networks:
       - proxy
+    ports:
+      - "8080:8080"
 
 networks:
   proxy:
